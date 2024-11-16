@@ -10,9 +10,7 @@ import { SelectedBy } from './types/SelectedBy';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedBy, setSelectedBy] = useState<SelectedBy>(SelectedBy.all);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[] | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [toggleTodo, setToggleTodo] = useState(false);
   const field = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -21,20 +19,11 @@ export const App: React.FC = () => {
     todos,
   ]);
 
-  useEffect(() => {
-    if (selectedBy !== SelectedBy.all) {
-      setFilteredTodos(
-        todos.filter(todo =>
-          selectedBy === SelectedBy.completed
-            ? todo.completed
-            : !todo.completed,
-        ),
-      );
-      setToggleTodo(false);
-    } else {
-      setFilteredTodos(null);
-    }
-  }, [selectedBy, toggleTodo, todos]);
+  const filteredTodos = todos.filter(todo =>
+    selectedBy === SelectedBy.completed
+      ? todo.completed
+      : !todo.completed,
+  )
 
   const loadingTodos = () => {
     todosServise
@@ -87,52 +76,53 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <section className="todoapp__main" data-cy="TodoList">
-              {(filteredTodos || todos).map(todo => (
-                <div
-                  data-cy="Todo"
-                  key={todo.id}
-                  className={classNames('todo', {
-                    completed: todo.completed,
-                  })}
-                >
-                  <label className="todo__status-label">
-                    <input
-                      data-cy="TodoStatus"
-                      type="checkbox"
-                      className="todo__status"
-                      checked={todo.completed}
-                    />
-                  </label>
-
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                  >
-                    {todo.title}
-                  </span>
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    data-cy="TodoDelete"
-                  >
-                    ×
-                  </button>
-
-
+              {(selectedBy === SelectedBy.all ? todos : filteredTodos)
+                .map(todo => (
                   <div
-                    data-cy="TodoLoader"
-                    className="modal overlay"
+                    data-cy="Todo"
+                    key={todo.id}
+                    className={classNames('todo', {
+                      completed: todo.completed,
+                    })}
                   >
+                    <label className="todo__status-label">
+                      <input
+                        data-cy="TodoStatus"
+                        type="checkbox"
+                        className="todo__status"
+                        checked={todo.completed}
+                      />
+                    </label>
+
+                    <span
+                      data-cy="TodoTitle"
+                      className="todo__title"
+                    >
+                      {todo.title}
+                    </span>
+                    <button
+                      type="button"
+                      className="todo__remove"
+                      data-cy="TodoDelete"
+                    >
+                      ×
+                    </button>
+
+
                     <div
-                      className="
-                      modal-background
-                      has-background-white-ter
-                    "
-                    />
-                    <div className="loader" />
+                      data-cy="TodoLoader"
+                      className="modal overlay"
+                    >
+                      <div
+                        className="
+                        modal-background
+                        has-background-white-ter
+                      "
+                      />
+                      <div className="loader" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
             </section>
 
